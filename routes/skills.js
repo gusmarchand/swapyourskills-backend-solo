@@ -13,15 +13,18 @@ cloudinary.config({
   api_secret: "qsHih4ecoREHgSi0o-nAWgQGUhQ",
 });
 
+
 /*SKILLS AFFICHEES AU DEPART*/
 
 router.get("/searchskills", async function (req, res, next) {
   try {
     let topSkills = await skillModel.aggregate([{ $sample: { size: 12 } }]);
 
+    //récupération de l'id du skill pour identifier le teacher par la suite
     let mySample = topSkills.map((id) => id._id);
     console.log("reqToSend2:", mySample);
 
+    //récupération du nom du teacher de la skill pour affichage sur la card
     let reqToSend = await skillModel
       .find({ _id: mySample })
       .populate("teacher", { username: 1 });
@@ -33,8 +36,11 @@ router.get("/searchskills", async function (req, res, next) {
 });
 
 /* SKILLSSEARCH MAIN PAGE */
+
 router.post("/searchskills", async function (req, res, next) {
   let response;
+
+// requete si seulement catégorie sélectionnée
   if (req.body.cat) {
     console.log("cat asking from front");
     response = await skillModel
@@ -43,6 +49,9 @@ router.post("/searchskills", async function (req, res, next) {
       })
       .populate("teacher");
   }
+
+// requete si sous-catégorie et ville sélectionnées
+
   if (req.body.subCat && req.body.citySelected) {
     response = await skillModel
       .find({
@@ -51,6 +60,8 @@ router.post("/searchskills", async function (req, res, next) {
       })
       .populate("teacher");
   }
+  
+  // requete si seulement sous-catégorie sélectionnée
   if (req.body.subCat && !req.body.citySelected) {
     response = await skillModel
       .find({
@@ -58,6 +69,8 @@ router.post("/searchskills", async function (req, res, next) {
       })
       .populate("teacher");
   }
+  // requete si seulement ville sélectionnée
+
   if (!req.body.subCat && req.body.citySelected) {
     response = await skillModel
       .find({
@@ -78,7 +91,9 @@ router.post("/searchUserskills", async function (req, res, next) {
   res.json(response);
 });
 
+
 /* Nouvelle annonce */
+
 router.post("/addskill", async function (req, res, next) {
   //const user = await userModel.findOne({ token: req.body. });
   var pictureName = "./tmp/" + uniqid() + ".jpg";
@@ -104,7 +119,8 @@ router.post("/addskill", async function (req, res, next) {
   res.json(skillSaved);
 });
 
-// Recherche mes skills pour ecran dashboard (Willem)
+/* Récupération des skills ou swaps pour affichage sur le dashboard */
+
 router.post("/myskills", async function (req, res, next) {
   console.log("Arrivée sur la route myskills");
   console.log(req.body.token);
@@ -121,8 +137,9 @@ router.post("/myskills", async function (req, res, next) {
   }
 });
 
-/* ADD A SWAP*/
+/* Ajout d'un swap à un user */
 
+// vérifier la mécanique receiver/sender du front pour affichage à tous les coups
 router.post("/addswap", async function (req, res, next) {
   let newSwap = await skillModel.updateOne(
     { _id: req.body.skillId },

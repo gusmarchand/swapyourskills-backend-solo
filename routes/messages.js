@@ -34,12 +34,10 @@ router.post("/createmessage", async function (req, res, next) {
       result: false,
       message: "Echec lors de la création du message",
     });
-
-    // Prensez à gerer les messages incorrect;
   }
 });
 
-// modif des messages de validation
+/* MODIFICATION DES MESSAGES DE VALIDATION */
 
 router.post("/update", async function (req, res, next) {
   let updatedMess = await messageModel.updateOne(
@@ -58,6 +56,8 @@ router.post("/update", async function (req, res, next) {
     });
   }
 });
+
+/* RECUPERATION DES MESSAGES */
 
 router.post("/readmessage", async function (req, res, next) {
   // message pour ecran dashboard
@@ -109,8 +109,15 @@ router.post("/readmessage", async function (req, res, next) {
   });
 });
 
+
+
+
 /* RECUPERATION D'UNE CONVERSATION */
+
+// attention à bien identifier les messages avec les 3 ID pour éviter overwrite si 2 ID sont identiques
 router.post("/conversation", async function (req, res, next) {
+
+  // changer userId par senderId && receveirId
   let { userId, skillId } = req.body;
   // console.log("req.body", req.body)
 
